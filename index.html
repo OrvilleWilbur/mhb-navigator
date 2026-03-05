@@ -110,7 +110,7 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 </div>
 <h1>Modulhandbuch Navigator</h1>
 <div class="sub">Lehramt – WS 2025/26</div>
-<div class="badge">v0.0.2 – WS 2025/26</div>
+<div class="badge">v0.0.3 – WS 2025/26</div>
 <div style="margin-top:.6rem;padding:.5rem .8rem;background:rgba(255,200,50,.15);border:1px solid rgba(255,200,50,.4);border-radius:8px;font-size:.75rem;color:#fff;text-align:center;line-height:1.5;max-width:800px;margin-left:auto;margin-right:auto">⚠️ <strong>Privates Projekt – keine offizielle Quelle.</strong> Dieses Tool kann Fehler enthalten. Es besteht kein Anspruch auf Richtigkeit oder Vollständigkeit. Alle Ergebnisse sind selbst zu prüfen.</div>
 </div>
 <div id="mode-bar">
@@ -187,7 +187,7 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 <div class="sep"></div>
 <a href="https://buymeacoffee.com" target="_blank"><button class="dark-toggle" style="background:linear-gradient(135deg,#ff6b6b,#ff8c42);border:none;padding:.3rem .6rem">☕ Spendieren</button></a>
 <div class="sep"></div>
-<span>v0.0.2</span>
+<span>v0.0.3</span>
 </div>
 <div class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
 
@@ -218,7 +218,17 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 <div class="modal-content">
 <button class="modal-close" onclick="closeModal('modal-changelog')">×</button>
 <h2>Versionshistorie</h2>
-<p><strong>v0.0.2 (aktuell)</strong></p>
+<p><strong>v0.0.3 (aktuell)</strong></p>
+<ul style="margin-left:1rem;margin-bottom:.8rem">
+<li>Semesterplaner: Persönlichen Studienplan erstellen</li>
+<li>Multi-Fach-Auswahl (Mehrere Fächer gleichzeitig planen)</li>
+<li>Zwei Planvarianten: Solide (~30 LP) und Puffer (~33-36 LP)</li>
+<li>Automatischer Ausschluss bereits absolvierter Module</li>
+<li>Einwahl-Checkliste mit 5-Schritte-Anleitung</li>
+<li>Passwort-Gate für kontrollierte Beta-Phase</li>
+<li>Alle Uni-Bezüge entfernt, vollständiger Haftungsausschluss</li>
+</ul>
+<p><strong>v0.0.2</strong></p>
 <ul style="margin-left:1rem;margin-bottom:.8rem">
 <li>Neues modernes Layout mit Glasmorphismus-Effekten</li>
 <li>Dark Mode Toggle</li>
@@ -326,7 +336,7 @@ function closeModal(id){var m=document.getElementById(id);if(m)m.classList.remov
 
 window.onclick=function(event){if(event.target.classList.contains('modal')){event.target.classList.remove('open');}};
 
-function generateErrorReport(){var ctx='=== MHB Navigator Fehlerkontext ===\n';ctx+='Version: 0.0.2\n';ctx+='Datum: '+new Date().toLocaleString('de-DE')+'\n';ctx+='Browser: '+navigator.userAgent+'\n\n';ctx+='=== Filter Status ===\n';ctx+='Schulart: '+(S.schulart||'nicht gesetzt')+'\n';ctx+='Studienbeginn: '+(S.beginn||'nicht gesetzt')+'\n';ctx+='Offene Module: '+(S.offen||'nicht gesetzt')+'\n';ctx+='Fach: '+(S.fach||'-')+'\n';ctx+='Suche: '+(S.search||'-')+'\n';ctx+='Semester: '+(S.semesters.length>0?S.semesters.join(', '):'-')+'\n\n';var visibleCount=0;try{var mods=Object.keys(DATA).reduce(function(sum,fach){return sum+(DATA[fach]||[]).length;},0);visibleCount=mods;}catch(e){visibleCount='?';}ctx+='Module gesamt: '+visibleCount+'\n\n';document.getElementById('fehler-context').value=ctx;}
+function generateErrorReport(){var ctx='=== MHB Navigator Fehlerkontext ===\n';ctx+='Version: 0.0.3\n';ctx+='Datum: '+new Date().toLocaleString('de-DE')+'\n';ctx+='Browser: '+navigator.userAgent+'\n\n';ctx+='=== Filter Status ===\n';ctx+='Schulart: '+(S.schulart||'nicht gesetzt')+'\n';ctx+='Studienbeginn: '+(S.beginn||'nicht gesetzt')+'\n';ctx+='Offene Module: '+(S.offen||'nicht gesetzt')+'\n';ctx+='Fach: '+(S.fach||'-')+'\n';ctx+='Suche: '+(S.search||'-')+'\n';ctx+='Semester: '+(S.semesters.length>0?S.semesters.join(', '):'-')+'\n\n';var visibleCount=0;try{var mods=Object.keys(DATA).reduce(function(sum,fach){return sum+(DATA[fach]||[]).length;},0);visibleCount=mods;}catch(e){visibleCount='?';}ctx+='Module gesamt: '+visibleCount+'\n\n';document.getElementById('fehler-context').value=ctx;}
 
 function copyErrorReport(){var ctx=document.getElementById('fehler-context').value;var txt=document.getElementById('fehler-text').value;var combined=ctx+'\n=== Fehlerbeschreibung ===\n'+txt;var area=document.createElement('textarea');area.value=combined;document.body.appendChild(area);area.select();document.execCommand('copy');document.body.removeChild(area);alert('Fehler-Report kopiert! Jetzt in Email einfügen und an 2025@bowo.de senden.');}
 
