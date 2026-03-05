@@ -78,7 +78,16 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 .back-to-top{position:fixed;bottom:70px;right:20px;background:var(--pri);color:#fff;padding:.6rem .8rem;border-radius:50%;cursor:pointer;display:none;z-index:99;transition:all .2s}
 .back-to-top.show{display:block}
 .back-to-top:hover{background:var(--pri-l);transform:translateY(-3px)}
-@media print{.hdr{position:static;padding:.8rem 1.5rem}.fil,.ft,.back-to-top,.hdr .top-controls{display:none!important}.lay{display:block}.rs{break-inside:avoid;box-shadow:none}.bp{display:none}body{background:#fff;color:#000}}
+#mode-bar{display:flex;gap:.5rem;justify-content:center;padding:.5rem 1rem;background:rgba(0,51,102,.04);border-bottom:1px solid var(--brd)}
+.mode-btn{padding:.4rem 1rem;border:1px solid var(--brd);background:var(--card);color:var(--txt);border-radius:8px;cursor:pointer;font-size:.82rem;transition:all .2s;font-family:inherit}
+.mode-btn:hover{border-color:var(--pri);background:var(--bg)}
+.mode-btn.active{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:600}
+.planer-fach-pills{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem}
+.planer-fach-pill{display:inline-block;background:rgba(0,51,102,.1);color:var(--pri);font-size:.7rem;padding:.15rem .5rem;border-radius:10px;font-weight:600}
+.var-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.var-badge{display:inline-block;padding:.2rem .7rem;border-radius:8px;font-weight:700;font-size:.85rem;color:#fff}
+.var-badge-a{background:var(--pri)}.var-badge-b{background:var(--acc)}
+@media print{.hdr{position:static;padding:.8rem 1.5rem}.fil,.ft,.back-to-top,.hdr .top-controls,#mode-bar{display:none!important}.lay{display:block}.rs{break-inside:avoid;box-shadow:none}.bp{display:none}body{background:#fff;color:#000}}
 @media(max-width:768px){.lay{flex-direction:column;padding:.8rem}.fil{width:100%;position:static;max-height:none}.hdr h1{font-size:1.1rem}.hdr .top-controls{position:static;margin-top:.8rem;justify-content:center}.ft{flex-direction:column;gap:.5rem;padding:.4rem 1rem}.ft .sep{display:none}}
 </style>
 </head>
@@ -104,6 +113,10 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 <div class="badge">v0.0.2 – WS 2025/26</div>
 <div style="margin-top:.6rem;padding:.5rem .8rem;background:rgba(255,200,50,.15);border:1px solid rgba(255,200,50,.4);border-radius:8px;font-size:.75rem;color:#fff;text-align:center;line-height:1.5;max-width:800px;margin-left:auto;margin-right:auto">⚠️ <strong>Privates Projekt – keine offizielle Quelle.</strong> Dieses Tool kann Fehler enthalten. Es besteht kein Anspruch auf Richtigkeit oder Vollständigkeit. Alle Ergebnisse sind selbst zu prüfen.</div>
 </div>
+<div id="mode-bar">
+<button class="mode-btn active" data-mode="browse" onclick="switchMode('browse')">🔍 Module durchsuchen</button>
+<button class="mode-btn" data-mode="planer" onclick="switchMode('planer')">📅 Semesterplaner</button>
+</div>
 <div class="lay">
 <aside class="fil">
 <div class="fc"><h3>Schulart</h3><div class="fo" id="f-sa">
@@ -117,16 +130,16 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 <button class="fb" data-v="ab2021" onclick="sf('beginn',this)">WS 2021/22 – SS 2025<span class="s">Neue EWS, Übergang</span></button>
 <button class="fb" data-v="ab2025" onclick="sf('beginn',this)">Ab WS 2025/26<span class="s">MHB gilt direkt</span></button>
 </div></div>
-<div class="fc"><h3>Offene Module</h3><div class="fo" id="f-om">
+<div class="fc" id="fc-offen"><h3>Offene Module</h3><div class="fo" id="f-om">
 <button class="fb" data-v="ja" onclick="sf('offen',this)">Ja, offene Module</button>
 <button class="fb" data-v="nein" onclick="sf('offen',this)">Nein / nichts begonnen</button>
 <button class="fb" data-v="unsicher" onclick="sf('offen',this)">Unsicher</button>
 </div></div>
-<div class="fc"><h3>Fach anzeigen</h3>
+<div class="fc" id="fc-fach"><h3>Fach anzeigen</h3>
 <select class="fsel" id="f-fach" onchange="S.fach=this.value;render()"><option value="">&ndash; Alle / keins &ndash;</option></select>
 <input class="srch" id="f-search" placeholder="Modul suchen..." oninput="S.search=this.value;render()">
 </div>
-<div class="fc"><h3>Empfohlenes Semester</h3>
+<div class="fc" id="fc-sem"><h3>Empfohlenes Semester</h3>
 <div class="fo" style="flex-direction:row;flex-wrap:wrap;gap:.3rem" id="f-sem">
 <button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="1" onclick="togSem(this)">1</button>
 <button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="2" onclick="togSem(this)">2</button>
@@ -140,6 +153,24 @@ select.fsel:hover,select.fsel:focus{border-color:var(--pri)}
 <div style="font-size:.7rem;color:var(--mut);margin-top:.3rem">Mehrfachauswahl möglich. Zeigt Module, die für das gewählte Semester empfohlen sind.</div>
 </div>
 <div class="fc" id="f-ex" style="display:none"><h3>Zusatzoptionen</h3><div id="f-exc"></div></div>
+<div class="fc" id="f-planer-faecher" style="display:none"><h3>Fächerkombination</h3>
+<div id="f-planer-list" style="max-height:220px;overflow-y:auto"></div>
+<div class="planer-fach-pills" id="planer-pills"></div>
+<div style="font-size:.7rem;color:var(--mut);margin-top:.3rem">Wähle deine Fächer. Pflichtmodule werden automatisch eingeplant.</div>
+</div>
+<div class="fc" id="f-planer-target" style="display:none"><h3>Ziel-Semester</h3>
+<div class="fo" style="flex-direction:row;flex-wrap:wrap;gap:.3rem" id="f-target-sem">
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="1" onclick="setTargetSem(this)">1</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="2" onclick="setTargetSem(this)">2</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="3" onclick="setTargetSem(this)">3</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="4" onclick="setTargetSem(this)">4</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="5" onclick="setTargetSem(this)">5</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="6" onclick="setTargetSem(this)">6</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="7" onclick="setTargetSem(this)">7</button>
+<button class="fb sem-btn" style="flex:1;min-width:2.2rem;text-align:center;padding:.3rem" data-v="8" onclick="setTargetSem(this)">8</button>
+</div>
+<div style="font-size:.7rem;color:var(--mut);margin-top:.3rem">Für welches Semester planst du?</div>
+</div>
 </aside>
 <main class="res" id="out">
 <div class="ph"><div class="ic">←</div><p>Wähle links deine Filter aus.<br>Die Auswertung erscheint hier sofort.</p></div>
@@ -330,6 +361,7 @@ if(S.schulart==='GS'){c.style.display='';x.innerHTML='<label class="fch"><input 
 else{c.style.display='none';S.gsVor2021=false;S.psy=false;}}
 
 function render(){const o=document.getElementById('out');
+if(S.planerMode){renderPlaner();return;}
 if(!S.schulart||!S.beginn||!S.offen){const m=[];if(!S.schulart)m.push('Schulart');if(!S.beginn)m.push('Studienbeginn');if(!S.offen)m.push('Modulstatus');o.innerHTML='<div class="ph"><div class="ic">←</div><p>Noch wählen: <strong>'+m.join(', ')+'</strong></p></div>';return;}
 var h='';
 h+='<div class="pb"><span class="dt"></span>'+SAL[S.schulart]+' · '+BGL[S.beginn]+' · Module: '+OML[S.offen]+'</div>';
@@ -452,6 +484,136 @@ count++;});});
 if(count===0)t+='(keine Module mit aktuellen Filtern)\n';
 else t+='\nGesamt: '+count+' Module\n';
 box.value=t;}
+
+/* === SEMESTERPLANER === */
+S.planerMode=false;S.planerFaecher=[];S.targetSemester=0;
+
+function switchMode(mode){
+S.planerMode=(mode==='planer');
+document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===mode);});
+var browseIds=['fc-fach','fc-sem','fc-offen'];
+browseIds.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=S.planerMode?'none':'';});
+document.getElementById('f-planer-faecher').style.display=S.planerMode?'':'none';
+document.getElementById('f-planer-target').style.display=S.planerMode?'':'none';
+render();}
+
+function initPlanerFaecher(){
+var container=document.getElementById('f-planer-list');
+Object.keys(DATA).sort().forEach(function(fach){
+var count=0;DATA[fach].forEach(function(m){if(!S.schulart||!m.sa||m.sa.indexOf(S.schulart)!==-1)count++;});
+var label=document.createElement('label');label.className='fch';label.dataset.fach=fach;
+var input=document.createElement('input');input.type='checkbox';input.value=fach;
+input.onchange=function(){
+if(this.checked){if(S.planerFaecher.indexOf(fach)===-1)S.planerFaecher.push(fach);}
+else{var i=S.planerFaecher.indexOf(fach);if(i>-1)S.planerFaecher.splice(i,1);}
+updatePlanerPills();render();};
+label.appendChild(input);
+var span=document.createElement('span');span.textContent=fach;label.appendChild(span);
+container.appendChild(label);});}
+
+function updatePlanerPills(){
+var el=document.getElementById('planer-pills');
+var h='';S.planerFaecher.forEach(function(f){h+='<span class="planer-fach-pill">'+esc(f)+'</span>';});
+el.innerHTML=h;}
+
+function setTargetSem(btn){
+document.getElementById('f-target-sem').querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+btn.classList.add('on');S.targetSemester=parseInt(btn.dataset.v);render();}
+
+function getPlanerCandidates(){
+var result={};
+S.planerFaecher.forEach(function(fach){
+var mods=DATA[fach]||[];
+mods=mods.filter(function(m){
+var saOk=!S.schulart||!m.sa||m.sa.indexOf(S.schulart)!==-1;
+var semOk=semMatch(m.s,[S.targetSemester]);
+var notDone=!DONE[m.k];
+return saOk&&semOk&&notDone;});
+if(mods.length>0)result[fach]=mods;});
+return result;}
+
+function generateVariants(candidates){
+var pflichtMods=[];var wpPool=[];
+Object.keys(candidates).forEach(function(fach){
+candidates[fach].forEach(function(m){
+if(m.t==='P')pflichtMods.push({m:m,fach:fach});
+else wpPool.push({m:m,fach:fach});});});
+wpPool.sort(function(a,b){return a.m.l-b.m.l;});
+var pLP=0;pflichtMods.forEach(function(item){pLP+=item.m.l;});
+var aWP=0;var aMods=pflichtMods.slice();var aUsed={};
+pflichtMods.forEach(function(item){aUsed[item.m.k]=true;});
+for(var i=0;i<wpPool.length;i++){
+if(pLP+aWP+wpPool[i].m.l<=32){aMods.push(wpPool[i]);aWP+=wpPool[i].m.l;aUsed[wpPool[i].m.k]=true;}}
+var bWP=aWP;var bMods=aMods.slice();
+for(var i=0;i<wpPool.length;i++){
+if(aUsed[wpPool[i].m.k])continue;
+if(pLP+bWP+wpPool[i].m.l<=38){bMods.push(wpPool[i]);bWP+=wpPool[i].m.l;}}
+return{
+a:{mods:aMods,lpP:pLP,lpW:aWP,total:pLP+aWP},
+b:{mods:bMods,lpP:pLP,lpW:bWP,total:pLP+bWP}};}
+
+function renderVariantTable(v,code,label,color){
+var h='<div class="rs" style="margin-top:1rem">';
+h+='<div class="var-header"><span class="var-badge var-badge-'+code+'">'+code.toUpperCase()+'</span>';
+h+='<h3 style="margin:0">'+label+' ('+v.total+' LP)</h3></div>';
+h+='<table class="mt"><tr><th style="width:2rem">✓</th><th>Modul</th><th>Fach</th><th>LP</th><th>Sem.</th><th>Typ</th><th>Prüfung</th><th>Note</th></tr>';
+var issues=0;
+v.mods.forEach(function(item){
+var m=item.m;var fach=item.fach;
+var dk=DONE[m.k];
+var typ=m.t==='P'?'<span class="tg tg-p">Pflicht</span>':'<span class="tg tg-w">WP</span>';
+var note=m.b===true?'<span class="tg tg-b">benotet</span>':m.b===false?'<span class="tg tg-u">unben.</span>':'<span class="tg" style="background:#eee;color:#999" title="Benotung unklar – FlexNow prüfen">?</span>';
+if(!m.s||m.b===null||m.b===undefined)issues++;
+h+='<tr style="'+(dk?'opacity:.5;text-decoration:line-through':'')+'"><td style="text-align:center"><input type="checkbox" '+(dk?'checked':'')+' onchange="togDone(\''+m.k.replace(/'/g,'')+'\')"></td>';
+h+='<td>'+esc(m.n)+'</td><td style="font-size:.72rem;color:var(--mut)">'+esc(fach)+'</td>';
+h+='<td><strong>'+m.l+'</strong></td><td>'+(m.s?esc(m.s):'<span style="color:#999">–</span>')+'</td>';
+h+='<td>'+typ+'</td><td style="font-size:.75rem">'+esc(m.p||'-')+'</td><td>'+note+'</td></tr>';});
+h+='</table>';
+h+='<div style="margin:.5rem 0;padding:.5rem .8rem;background:var(--bg);border-radius:8px;font-size:.85rem">';
+h+='<strong>'+v.lpP+' LP</strong> Pflicht + <strong>'+v.lpW+' LP</strong> Wahlpflicht = ';
+h+='<span style="font-size:1.1rem;font-weight:700;color:var(--pri)">'+v.total+' LP</span></div>';
+if(issues>0)h+='<div class="al al-w"><strong>Bitte prüfen:</strong> '+issues+' Module mit unklaren Daten (Semester oder Benotung). Details in FlexNow oder Modulhandbuch nachschlagen.</div>';
+h+='</div>';
+return h;}
+
+function renderPlaner(){
+var o=document.getElementById('out');
+var errors=[];
+if(!S.schulart)errors.push('Schulart');
+if(S.planerFaecher.length===0)errors.push('Min. 1 Fach');
+if(!S.targetSemester)errors.push('Ziel-Semester');
+if(errors.length>0){o.innerHTML='<div class="ph"><div class="ic">📅</div><p>Semesterplaner – noch wählen: <strong>'+errors.join(', ')+'</strong></p></div>';return;}
+var candidates=getPlanerCandidates();
+var totalCandidates=0;Object.keys(candidates).forEach(function(f){totalCandidates+=candidates[f].length;});
+var doneCount=0;
+S.planerFaecher.forEach(function(fach){(DATA[fach]||[]).forEach(function(m){
+var saOk=!S.schulart||!m.sa||m.sa.indexOf(S.schulart)!==-1;
+var semOk=semMatch(m.s,[S.targetSemester]);
+if(saOk&&semOk&&DONE[m.k])doneCount++;});});
+var h='';
+h+='<div class="pb"><span class="dt"></span>'+SAL[S.schulart]+' · Semester '+S.targetSemester+' · '+S.planerFaecher.join(', ')+'</div>';
+if(doneCount>0)h+='<div class="al al-s"><strong>'+doneCount+' Module bereits absolviert</strong> (aus diesem Semester-Bereich) – in der Planung nicht mehr enthalten.</div>';
+h+='<div class="al al-i"><strong>Hinweis zum Semesterplaner:</strong> Modul-Voraussetzungen (\"erst X, dann Y\") und konkrete Lehrveranstaltungen (Vorlesungen, Seminare) sind im Tool <strong>nicht hinterlegt</strong>. Bitte im UnivIS und Modulhandbuch selbst prüfen.</div>';
+if(totalCandidates===0){
+h+='<div class="rs"><h3>Keine offenen Module gefunden</h3><p>Für Semester '+S.targetSemester+' und deine Fächerkombination gibt es keine unabgeschlossenen Module'+(doneCount>0?' ('+doneCount+' bereits erledigt)':'')+'. Probiere ein anderes Semester oder andere Fächer.</p></div>';
+o.innerHTML=h;return;}
+var variants=generateVariants(candidates);
+h+=renderVariantTable(variants.a,'a','Solide – empfohlene Grundlast');
+if(variants.b.total>variants.a.total){
+h+=renderVariantTable(variants.b,'b','Puffer – erweiterte Planung');}
+else{h+='<div class="al al-i" style="margin-top:.8rem"><strong>Variante B identisch mit A</strong> – keine weiteren Wahlpflichtmodule für dieses Semester verfügbar.</div>';}
+h+='<div class="rs" style="margin-top:1rem"><h3>Einwahl-Checkliste</h3>';
+h+='<p style="margin-bottom:.5rem">Schritte für die Modulanmeldung:</p>';
+h+='<div class="ci"><span class="ic">1️⃣</span><span><strong>FlexNow prüfen:</strong> Aktuellen Modulstatus und Voraussetzungen checken.</span></div>';
+h+='<div class="ci"><span class="ic">2️⃣</span><span><strong>UnivIS durchsuchen:</strong> Konkrete Veranstaltungen (Vorlesung, Seminar, Übung) zu jedem Modul finden.</span></div>';
+h+='<div class="ci"><span class="ic">3️⃣</span><span><strong>Stundenplan bauen:</strong> Zeiten auf Überschneidungen prüfen.</span></div>';
+h+='<div class="ci"><span class="ic">4️⃣</span><span><strong>Anmelden:</strong> In UnivIS/VC für Veranstaltungen einwählen, in FlexNow für Prüfungen.</span></div>';
+h+='<div class="ci"><span class="ic">5️⃣</span><span><strong>Fristen beachten:</strong> An-/Abmeldefristen für Module und Prüfungen notieren.</span></div>';
+h+='</div>';
+h+='<button class="bp" onclick="window.print()">Drucken / PDF</button>';
+o.innerHTML=h;}
+
+initPlanerFaecher();
 
 window.addEventListener('scroll',function(){var btn=document.querySelector('.back-to-top');if(window.pageYOffset>300){btn.classList.add('show');}else{btn.classList.remove('show');}});
 
